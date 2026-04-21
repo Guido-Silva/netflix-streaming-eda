@@ -94,10 +94,11 @@ class TestPriorityQueue(unittest.TestCase):
 
     def test_multiples_misma_prioridad_fifo(self):
         """Eventos con misma prioridad deben salir en orden FIFO (timestamp)."""
+        # Usar timestamps incrementales explícitos para garantizar orden sin sleep
+        ts_base = time.time()
         for i in range(5):
-            evento = UserEvent(f"u{i}", "stream", PRIORITY_STANDARD)
+            evento = UserEvent(f"u{i}", "stream", PRIORITY_STANDARD, timestamp=ts_base + i * 0.001)
             self.pq.push(evento)
-            time.sleep(0.001)  # Garantizar timestamps diferentes
 
         primer_id = self.pq.pop().user_id
         self.assertEqual(primer_id, "u0")  # El primero insertado sale primero
