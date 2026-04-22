@@ -12,7 +12,7 @@
 
 Las plataformas de streaming de video a escala global enfrentan desafíos computacionales extremos: millones de eventos concurrentes de usuarios, catálogos de cientos de miles de títulos y necesidad de respuesta en tiempo real con baja latencia. Las estructuras de datos clásicas (listas, diccionarios, árboles balanceados) resultan insuficientes cuando se requiere memoria sublineal, consultas aproximadas con garantías probabilísticas o búsquedas de similitud en espacios de alta dimensionalidad.
 
-Este proyecto modela el backend de una plataforma de streaming tipo Netflix y plantea la siguiente pregunta central: **¿qué estructuras de datos avanzadas permiten escalar eficientemente el procesamiento de eventos, la gestión de caché, el conteo de popularidad, la detección de duplicados, el autocompletado de búsqueda y las recomendaciones de contenido?**
+Este proyecto modela el backend de una plataforma de streaming tipo Netflix, donde se integran estructuras de datos avanzadas: una cola de prioridad (priority queue) para programar solicitudes de reproducción, un filtro de Bloom para filtrar rápidamente contenido no visto y así evitar accesos innecesarios a la base de datos, una caché LRU para almacenar temporalmente los segmentos de video más recientes, un trie para búsquedas de texto (por ejemplo, autocompletado de títulos) y técnicas de LSH + MinHash para detección de similitud (por ejemplo, recomendación de contenido similar). 
 
 ### 1.2 Solución Propuesta
 
