@@ -422,7 +422,8 @@ El sistema está organizado en módulos independientes en `src/` con una capa in
 
 **Figura 6:** Arquitectura de la plataforma de streaming de video con los seis componentes integrados.
 
-![Arquitectura del Sistema](arquitectura.png)
+<img width="796" height="532" alt="image" src="https://github.com/user-attachments/assets/2cdb00fa-99d9-4012-8b41-16c2f4b41521" />
+
 
 Los seis componentes se agrupan en tres capas:
 
