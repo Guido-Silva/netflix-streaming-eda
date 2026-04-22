@@ -533,6 +533,37 @@ Todos los experimentos se ejecutaron en notebooks Jupyter dedicados por estructu
 | Distribución de popularidad | Modelo | Zipf / Pareto |
 | Ventana temporal | Rango | Últimos 30 días |
 
+#### 5.1.1 Métricas de Escalabilidad del Dataset (Tiempo, Memoria y Disco)
+
+Para cuantificar el costo de generación del dataset sintético, se ejecutó un benchmark reproducible con:
+
+- Tiempo total de construcción y serialización (`time.perf_counter`).
+- Tiempo desglosado: generación de usuarios/videos (costo fijo) vs. generación de eventos (costo variable).
+- Memoria pico durante generación (`tracemalloc`).
+- Tamaño final en disco (JSON comprimido).
+
+Los resultados medidos se guardan en `data/benchmarks/benchmark_summary.json`. Las filas marcadas como *Estimado* se calcularon por extrapolación lineal del costo variable por evento observado en las dos escalas medidas (ver metodología al pie de la tabla).
+
+| Escala de Eventos | Tiempo Total (s) | T. Eventos (s) | T. Usuarios/Videos (s) | Memoria Pico (MB) | Tamaño Disco (MB) | Estado |
+|---|---|---|---|---|---|---|
+| 10 000 | 6.83 | 5.90 | 0.18 | 6.08 | 2.37 | Medido |
+| 100 000 | 80.37 | 70.07 | 0.08 | 52.34 | 20.42 | Medido |
+| 1 000 000 | ~719 (~12 min) | ~715 | ~0.10 | ~520 | ~203 | Estimado¹ |
+| 10 000 000 | ~7 140 (~2 h) | ~7 140 | ~0.10 | ~5 100 (~5 GB) | ~2 010 (~2 GB) | Estimado¹ |
+
+> ¹ **Metodología de proyección**: el costo de generación de usuarios y videos es fijo (~0.1 s, despreciable). El costo variable por evento se obtiene de la pendiente entre los dos puntos medidos:  
+> - Tiempo: (70.07 − 5.90) / 90 000 ≈ **0.000713 s/evento**  
+> - Memoria: (52.34 − 6.08) / 90 000 ≈ **0.000514 MB/evento**  
+> - Disco: (20.42 − 2.37) / 90 000 ≈ **0.000201 MB/evento**  
+> Las estimaciones asumen comportamiento lineal; en la práctica la memoria puede crecer super-linealmente por presión del GC de Python a partir de ~500 MB.
+
+**Observaciones clave:**
+
+- El tiempo de generación de usuarios y videos es **constante** (~0.1 s) independientemente del volumen de eventos, lo que confirma que el cuello de botella es la generación de eventos.
+- Para **1 M de eventos** se requerirían ~520 MB de RAM y ~12 minutos de ejecución, factible en hardware estándar (≥ 8 GB RAM).
+- Para **10 M de eventos** la memoria estimada supera los 5 GB y el tiempo de ejecución supera las 2 horas, lo que requeriría generación por lotes (chunked) o serialización incremental en lugar de cargar todo el dataset en memoria antes de escribirlo.
+- El tamaño en disco crece de forma **aproximadamente lineal** con el número de eventos (el overhead fijo de usuarios y videos es < 1% del total para n ≥ 100 K).
+
 ### 5.2 Resultados Empíricos por Estructura
 
 #### Priority Queue

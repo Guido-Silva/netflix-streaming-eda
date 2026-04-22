@@ -151,7 +151,7 @@ def generate_videos(n: int = 500) -> List[Dict]:
     return videos
 
 
-def generate_events(users: List[Dict], videos: List[Dict], n: int = 10000) -> List[Dict]:
+def generate_events(users: List[Dict], videos: List[Dict], n: int = 10000000) -> List[Dict]:
     """
     Genera n eventos de usuario sintéticos con distribución realista.
 
