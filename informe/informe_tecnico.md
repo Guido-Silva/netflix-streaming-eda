@@ -57,7 +57,7 @@ Este proyecto simula ese backend con datos sintéticos de 1 000 usuarios, 500 vi
 
 La elección de cada estructura responde a requerimientos concretos del escenario:
 
-- **Priority Queue sobre cola FIFO**: una cola FIFO trata todos los eventos por igual, retrasando pagos detrás de millones de eventos de streaming. Un min-heap garantiza que los eventos de pago y usuarios premium se procesen primero con O(log n) por operación, frente a O(n) de una lista ordenada.
+- **Priority Queue sobre cola FIFO**: una cola FIFO trata todos los eventos por igual, retrasando pagos detrás de millones de eventos de streaming. Un min-heap garantiza que los eventos de pago y usuarios premium se procesen primero que los standard con O(log n) por operación, frente a O(n) de una lista ordenada.
 
 - **LRU Cache sobre caché FIFO o LFU**: el tráfico de streaming sigue una distribución de Zipf (el 20% del catálogo acumula el 80% de las reproducciones). LRU se alinea naturalmente con esta distribución porque los contenidos recientes tienden a ser los más populares. LFU requeriría mantener contadores ordenados (O(log n) por actualización), mientras LRU con `OrderedDict` logra O(1) amortizado en todas las operaciones.
 
@@ -71,8 +71,8 @@ La elección de cada estructura responde a requerimientos concretos del escenari
 
 ### 2.3 Objetivos Específicos del Proyecto
 
-1. Implementar las seis estructuras de datos en Python puro, sin librerías externas especializadas, como módulos independientes en `src/`.
-2. Validar cada implementación con pruebas unitarias en `tests/test_all.py` (más de 60 tests, cobertura > 90%).
+1. Implementar las seis estructuras de datos en Python, sin librerías externas especializadas, como módulos independientes en `src/`.
+2. Validar cada implementación con pruebas unitarias en `tests/test_all.py`
 3. Comparar empíricamente el rendimiento de cada estructura frente a alternativas simples en notebooks dedicados (`notebooks/01` al `notebooks/07`).
 4. Integrar las seis estructuras en un sistema cohesivo (`netflix_system.py`) que procese un flujo de 10 000 eventos de extremo a extremo.
 5. Documentar los trade-offs de cada estructura: cuándo usarla y cuándo no es la opción adecuada.
@@ -457,7 +457,7 @@ Usuario ──→ [Evento] ──→ Priority Queue
 ### 4.3 Decisiones de Diseño y Justificación
 
 **Decisión 1: `OrderedDict` para LRU Cache**  
-Python's `OrderedDict` implementa internamente una lista doblemente enlazada sincronizada con un diccionario hash, logrando `move_to_end()` y `popitem(last=False)` en O(1) amortizado. Alternativas como mantener una lista Python ordenada manualmente requerirían O(n) para reordenar tras cada acceso.
+Implementa internamente una lista doblemente enlazada sincronizada con un diccionario hash, logrando `move_to_end()` y `popitem(last=False)` en O(1) amortizado. Alternativas como mantener una lista Python ordenada manualmente requerirían O(n) para reordenar tras cada acceso.
 
 **Decisión 2: SHA-256 con semillas para funciones hash independientes**  
 El Count-Min Sketch y el Bloom Filter requieren funciones hash independientes. En lugar de implementar familias de funciones universales, se usa SHA-256 con semillas distintas por fila, combinando la semilla con el elemento antes de hashear:
@@ -521,7 +521,7 @@ Usar `dict` para los hijos soporta Unicode correctamente, pero aumenta el uso de
 
 ### 5.1 Metodología de Benchmarking
 
-Todos los experimentos se ejecutaron en notebooks Jupyter dedicados por estructura (`notebooks/01_priority_queue.ipynb` a `notebooks/07_sistema_integrado.ipynb`) usando datos generados por `data/synthetic_data_generator.py`. Las mediciones de tiempo se realizaron con `time.perf_counter()` para máxima precisión.
+Todos los experimentos se ejecutaron en notebooks Jupyter por estructura (`notebooks/01_priority_queue.ipynb` a `notebooks/07_sistema_integrado.ipynb`) usando datos generados por `data/synthetic_data_generator.py`. Las mediciones de tiempo se realizaron con `time.perf_counter()` para máxima precisión.
 
 **Dataset de prueba:**
 
@@ -603,6 +603,13 @@ Se midió el tiempo de búsqueda exacta y autocompletado para Tries de diferente
 
 El tiempo de búsqueda se mantiene esencialmente constante (O(m)), mientras que el autocompletado crece ligeramente con el número de resultados en el subárbol, no con el tamaño total del Trie.
 
+<img width="793" height="486" alt="image" src="https://github.com/user-attachments/assets/493917f5-780c-4fcc-80cb-2a0ab52303d9" />
+
+<img width="785" height="486" alt="image" src="https://github.com/user-attachments/assets/63c5c5ce-f2ad-44a6-a4bf-1f2853a2e5b9" />
+
+<img width="791" height="489" alt="image" src="https://github.com/user-attachments/assets/6c070213-0ec3-44a2-ac9d-f4b3c995c10e" />
+
+
 #### LSH + MinHash
 
 Se evaluó la precisión de MinHash en función del número de funciones hash h, y la capacidad de LSH para encontrar pares similares en el conjunto de prueba:
@@ -615,6 +622,105 @@ Se evaluó la precisión de MinHash en función del número de funciones hash h,
 | 200 | 4.1% | 0.049 |
 
 Con 9 videos controlados (Stranger Things / Dark con J≈0.7; Squid Game / Alice in Borderland con J≈0.65; La Casa de Papel / Berlin con J≈0.6), LSH identificó todos los pares similares con umbral 0.5 y h=100 sin falsos negativos.
+
+# Benchmark: Trie vs. HashTable
+
+## Trie Performance
+| Escala (n) | Operación | Media (ms) | Std Dev | Memoria (MB) |
+| :--- | :--- | :--- | :--- | :--- |
+| **1,000** | Inserción | 3.835 | 1.142 | 1.553 |
+| | Búsqueda exacta | 1.130 | 0.515 | |
+| | Búsqueda prefijo | 0.299 | 0.072 | |
+| **10,000** | Inserción | 35.765 | 7.483 | 13.609 |
+| | Búsqueda exacta | 2.132 | 0.433 | |
+| | Búsqueda prefijo | 0.495 | 0.228 | |
+| **100,000** | Inserción | 5529.860 | 22788.246 | 118.190 |
+| | Búsqueda exacta | 2.314 | 0.354 | |
+| | Búsqueda prefijo | 0.508 | 0.085 | |
+
+---
+
+## HashTable Performance (n = 1000)
+| Operación | Media (ms) | Std Dev | Memoria Actual | Memoria Pico |
+| :--- | :--- | :--- | :--- | :--- |
+| Inserción | 0.078 | 0.012 | 4.195 MB | 6.292 MB |
+| Búsqueda exacta | 0.280 | 0.042 | - | - |
+| Búsqueda prefijo | 1390.955 | 161.143 | - | - |
+
+> **Nota:** En el caso de búsqueda exacta del HashTable, se tomó el valor representativo de 0.280 ms para la comparación.
+
+---
+
+### Análisis Rápido
+* **Ventaja del Trie:** La búsqueda por prefijo es exponencialmente más rápida, manteniendo tiempos constantes cerca de los **0.5 ms** incluso con 100k elementos.
+* **Costo del Trie:** El consumo de memoria escala linealmente con el set de datos, llegando a **118 MB** para 100k entradas.
+* **Debilidad del HashTable:** Aunque es más eficiente en memoria y búsquedas exactas para sets pequeños, la búsqueda por prefijo es extremadamente ineficiente (**~1.4 segundos**).
+
+# Benchmark: CMS vs. MG
+
+| Dataset Size (n) | Algoritmo | Media (ms) | Std Dev (ms) |
+| :--- | :--- | :--- | :--- |
+| **1,000** | CMS | 13.1424 | 4.0179 |
+| | MG | 0.5944 | 0.2651 |
+| **10,000** | CMS | 124.4356 | 22.1260 |
+| | MG | 5.4960 | 1.0759 |
+| **100,000** | CMS | 1149.3550 | 47.5253 |
+| | MG | 52.8539 | 5.8557 |
+
+
+# Benchmark
+
+## 1. Trie vs. HashTable
+
+### Rendimiento del Trie
+| Escala (n) | Operación | Media (ms) | Std Dev | Memoria (MB) |
+| :--- | :--- | :--- | :--- | :--- |
+| **1,000** | Inserción | 3.835 | 1.142 | 1.553 |
+| | Búsqueda exacta | 1.130 | 0.515 | |
+| | Búsqueda prefijo | 0.299 | 0.072 | |
+| **10,000** | Inserción | 35.765 | 7.483 | 13.609 |
+| | Búsqueda exacta | 2.132 | 0.433 | |
+| | Búsqueda prefijo | 0.495 | 0.228 | |
+| **100,000** | Inserción | 5529.860 | 22788.246 | 118.190 |
+| | Búsqueda exacta | 2.314 | 0.354 | |
+| | Búsqueda prefijo | 0.508 | 0.085 | |
+
+### Rendimiento HashTable (n = 1000)
+| Operación | Media (ms) | Std Dev | Memoria (Actual/Pico) |
+| :--- | :--- | :--- | :--- |
+| Inserción | 0.078 | 0.012 | 4.195 MB / 6.292 MB |
+| Búsqueda exacta | 0.280 | 0.042 | - |
+| Búsqueda prefijo | 1390.955 | 161.143 | - |
+
+---
+
+## 2. Bloom Filter vs. Count-Min Sketch (CMS)
+
+| Dataset Size | Algoritmo | Operación | Tiempo (ms) | Memoria | Otros |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **1,000** | **Bloom** | Insert | 7.941 ± 0.865 | 0.801 MB | FP rate: 0.000000 |
+| | | Query | 7.889 ± 0.866 | | |
+| | **CMS** | Insert | 8.478 ± 0.821 | 0.281 MB | Avg error: 0.000011 |
+| | | Query | 7.665 ± 0.821 | | |
+| **10,000** | **Bloom** | Insert | 78.027 ± 5.714 | 0.804 MB | FP rate: 0.002720 |
+| | | Query | 7.752 ± 0.952 | | |
+| | **CMS** | Insert | 81.795 ± 6.408 | 0.281 MB | Avg error: 0.027090 |
+| | | Query | 8.146 ± 0.622 | | |
+| **100,000** | **CMS** | Insert | 836.974 ± 40.652 | 0.281 MB | Avg error: 0.662670 |
+| | | Query | 8.381 ± 0.893 | | |
+
+---
+
+### Notas de implementación
+* **Trie:** Muestra una alta eficiencia en búsquedas de prefijo, pero el tiempo de inserción y el consumo de memoria crecen considerablemente con $n=100,000$.
+* **Bloom Filter:** Muestra un ligero aumento en la tasa de falsos positivos (FP rate) al aumentar el dataset.
+* **CMS:** Destaca por mantener un uso de memoria constante (**0.281 MB**) a pesar del crecimiento del dataset, a costa de un incremento en el error promedio.
+
+---
+
+### Análisis de resultados
+* **Rendimiento Temporal:** El algoritmo **Misra-Gries (MG)** es significativamente más rápido que **Count-Min Sketch (CMS)** en todos los órdenes de magnitud probados, manteniendo una diferencia de rendimiento de aproximadamente **20x** a favor de MG.
+* **Escalabilidad:** Ambos algoritmos muestran un crecimiento lineal respecto al tamaño del dataset ($n$), pero MG mantiene una desviación estándar mucho más baja y controlada en comparación con CMS.
 
 ### 5.3 Verificación de Complejidades Teóricas
 
@@ -725,12 +831,6 @@ Este proyecto demostró que seis estructuras de datos avanzadas — seleccionada
 10. Python Software Foundation. (2024). *collections.OrderedDict*. Python 3.12 Documentation. https://docs.python.org/3/library/collections.html#collections.OrderedDict
 
 11. Python Software Foundation. (2024). *hashlib — Secure hashes and message digests*. Python 3.12 Documentation. https://docs.python.org/3/library/hashlib.html
-
-### Repositorios Consultados
-
-12. Repositorio del proyecto: *netflix-streaming-eda*. Implementación propia. UTEC Maestría, 2026.
-
-13. Harper, F.M. & Konstan, J.A. (2015). *The MovieLens Datasets: History and Context*. **ACM Transactions on Interactive Intelligent Systems**, 5(4), 19:1–19:19. (Dataset de referencia para validación futura.)
 
 ---
 
