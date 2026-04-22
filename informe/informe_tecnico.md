@@ -603,12 +603,6 @@ Se midió el tiempo de búsqueda exacta y autocompletado para Tries de diferente
 
 El tiempo de búsqueda se mantiene esencialmente constante (O(m)), mientras que el autocompletado crece ligeramente con el número de resultados en el subárbol, no con el tamaño total del Trie.
 
-<img width="793" height="486" alt="image" src="https://github.com/user-attachments/assets/493917f5-780c-4fcc-80cb-2a0ab52303d9" />
-
-<img width="785" height="486" alt="image" src="https://github.com/user-attachments/assets/63c5c5ce-f2ad-44a6-a4bf-1f2853a2e5b9" />
-
-<img width="791" height="489" alt="image" src="https://github.com/user-attachments/assets/6c070213-0ec3-44a2-ac9d-f4b3c995c10e" />
-
 
 #### LSH + MinHash
 
