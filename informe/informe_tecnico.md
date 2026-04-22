@@ -4,6 +4,17 @@
 **Asignatura:** Estructuras de Datos y Algoritmos  
 **Programa:** Maestría en Ciencias de Datos e IA — UTEC
 
+
+## Integrantes
+- Enrique Huasupoma (enrique.huasupoma@utec.
+edu.pe)
+- Ruben Coquil (ruben.coquil@utec.edu.pe)
+- Cristopher Jair (cristopher.hurtado@utec.
+edu.pe)
+- Alvaro Colquicocha (alvaro.
+colquicocha@utec.edu.pe)
+- Alex Valdez (alex.valdez@utec.edu.pe)
+- Guido Silva (juan.silva@utec.edu.pe)
 ---
 
 ## 1. Resumen Ejecutivo

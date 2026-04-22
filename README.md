@@ -5,7 +5,7 @@
 - Ruben Coquil (ruben.coquil@utec.edu.pe)
 - Cristopher Jair (cristopher.hurtado@utec.edu.pe)
 - Alvaro Colquicocha (alvaro.colquicocha@utec.edu.pe)
-- Alex Valdez (emalex.valdez@utec.edu.peail)
+- Alex Valdez (alex.valdez@utec.edu.pe)
 - Guido Silva (juan.silva@utec.edu.pe)
 
 ## Descripción
