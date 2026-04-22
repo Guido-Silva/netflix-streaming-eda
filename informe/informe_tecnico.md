@@ -668,30 +668,6 @@ Con 9 videos controlados (Stranger Things / Dark con J≈0.7; Squid Game / Alice
 | | MG | 52.8539 | 5.8557 |
 
 
-# Benchmark
-
-## 1. Trie vs. HashTable
-
-### Rendimiento del Trie
-| Escala (n) | Operación | Media (ms) | Std Dev | Memoria (MB) |
-| :--- | :--- | :--- | :--- | :--- |
-| **1,000** | Inserción | 3.835 | 1.142 | 1.553 |
-| | Búsqueda exacta | 1.130 | 0.515 | |
-| | Búsqueda prefijo | 0.299 | 0.072 | |
-| **10,000** | Inserción | 35.765 | 7.483 | 13.609 |
-| | Búsqueda exacta | 2.132 | 0.433 | |
-| | Búsqueda prefijo | 0.495 | 0.228 | |
-| **100,000** | Inserción | 5529.860 | 22788.246 | 118.190 |
-| | Búsqueda exacta | 2.314 | 0.354 | |
-| | Búsqueda prefijo | 0.508 | 0.085 | |
-
-### Rendimiento HashTable (n = 1000)
-| Operación | Media (ms) | Std Dev | Memoria (Actual/Pico) |
-| :--- | :--- | :--- | :--- |
-| Inserción | 0.078 | 0.012 | 4.195 MB / 6.292 MB |
-| Búsqueda exacta | 0.280 | 0.042 | - |
-| Búsqueda prefijo | 1390.955 | 161.143 | - |
-
 ---
 
 ## 2. Bloom Filter vs. Count-Min Sketch (CMS)
